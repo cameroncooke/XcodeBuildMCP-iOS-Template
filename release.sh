@@ -69,7 +69,7 @@ cat > "$RELEASE_NOTES" << EOF
 - 
 
 ## Full Changelog
-https://github.com/cameroncooke/xcodebuild-mcp-ios-template/compare/$LATEST_TAG...$NEW_TAG
+https://github.com/cameroncooke/XcodeBuildMCP-iOS-Template/compare/$LATEST_TAG...$NEW_TAG
 EOF
 
 echo "Created release notes file: $RELEASE_NOTES"
@@ -88,7 +88,7 @@ echo "Creating GitHub release..."
 
 # Create a temporary directory for the release
 TEMP_DIR=$(mktemp -d)
-RELEASE_NAME="xcodebuild-mcp-ios-template-$NEW_VERSION"
+RELEASE_NAME="XcodeBuildMCP-iOS-Template-$NEW_VERSION"
 
 # Copy all template files to temp directory
 cp -r . "$TEMP_DIR/$RELEASE_NAME"
@@ -125,4 +125,4 @@ echo "The release includes:"
 echo "- Tag: $NEW_TAG"
 echo "- Asset: $RELEASE_NAME.zip"
 echo ""
-echo "View the release at: https://github.com/cameroncooke/xcodebuild-mcp-ios-template/releases/tag/$NEW_TAG"
+echo "View the release at: https://github.com/cameroncooke/XcodeBuildMCP-iOS-Template/releases/tag/$NEW_TAG"
