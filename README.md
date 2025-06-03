@@ -1,96 +1,81 @@
-# MyProject - iOS App
+# XcodeBuildMCP iOS Template
 
-A modern iOS application using a **workspace + SPM package** architecture for clean separation between app shell and feature code.
+A modern iOS application template using a **workspace + SPM package** architecture for clean separation between app shell and feature code. This template is designed to be used with [XcodeBuildMCP](https://github.com/cameroncooke/XcodeBuildMCP).
 
-## Project Architecture
+## Features
 
-```
-MyProject/
-├── MyProject.xcworkspace/              # Open this file in Xcode
-├── MyProject.xcodeproj/                # App shell project
-├── MyProject/                          # App target (minimal)
-│   ├── Assets.xcassets/                # App-level assets (icons, colors)
-│   ├── MyProjectApp.swift              # App entry point
-│   └── MyProject.xctestplan            # Test configuration
-├── MyProjectPackage/                   # 🚀 Primary development area
-│   ├── Package.swift                   # Package configuration
-│   ├── Sources/MyProjectFeature/       # Your feature code
-│   └── Tests/MyProjectFeatureTests/    # Unit tests
-└── MyProjectUITests/                   # UI automation tests
-```
+- ✨ **Modern Architecture**: Workspace + Swift Package Manager structure
+- 📦 **Clean Separation**: Minimal app shell with features in SPM package
+- 🏗️ **Buildable Folders**: Xcode 16 support for automatic file discovery
+- 🧪 **Test Ready**: Preconfigured with Swift Testing and XCUITest
+- ⚙️ **XCConfig Based**: Build settings managed through configuration files
+- 🚀 **AI-Friendly**: Designed for use with AI coding assistants
 
-## Key Architecture Points
+## Quick Start
 
-### Workspace + SPM Structure
-- **App Shell**: `MyProject/` contains minimal app lifecycle code
-- **Feature Code**: `MyProjectPackage/Sources/MyProjectFeature/` is where most development happens
-- **Separation**: Business logic lives in the SPM package, app target just imports and displays it
+### Using XcodeBuildMCP
 
-### Buildable Folders (Xcode 16)
-- Files added to the filesystem automatically appear in Xcode
-- No need to manually add files to project targets
-- Reduces project file conflicts in teams
+The easiest way to use this template is through XcodeBuildMCP:
 
-## Development Notes
-
-### Code Organization
-Most development happens in `MyProjectPackage/Sources/MyProjectFeature/` - organize your code as you prefer.
-
-### Public API Requirements
-Types exposed to the app target need `public` access:
-```swift
-public struct NewView: View {
-    public init() {}
-    
-    public var body: some View {
-        // Your view code
-    }
-}
+```bash
+# Using the XcodeBuildMCP tool
+mcp scaffold_ios_project --projectName "YourApp" --outputPath "./YourApp"
 ```
 
-### Adding Dependencies
-Edit `MyProjectPackage/Package.swift` to add SPM dependencies:
-```swift
-dependencies: [
-    .package(url: "https://github.com/example/SomePackage", from: "1.0.0")
-],
-targets: [
-    .target(
-        name: "MyProjectFeature",
-        dependencies: ["SomePackage"]
-    ),
-]
+### Manual Download
+
+You can also download the template directly from the [releases page](https://github.com/cameroncooke/XcodeBuildMCP-iOS-Template/releases).
+
+## Template Structure
+
+```
+template/
+├── Config/                         # XCConfig build settings
+│   ├── Debug.xcconfig
+│   ├── Release.xcconfig
+│   ├── Shared.xcconfig
+│   └── Tests.xcconfig
+├── MyProject.xcworkspace/          # Workspace file
+├── MyProject.xcodeproj/            # App shell project
+├── MyProject/                      # App target (minimal)
+│   ├── Assets.xcassets/
+│   ├── MyProjectApp.swift
+│   └── MyProject.xctestplan
+├── MyProjectPackage/               # SPM package for features
+│   ├── Package.swift
+│   ├── Sources/
+│   └── Tests/
+└── MyProjectUITests/               # UI automation tests
 ```
 
-### Test Structure
-- **Unit Tests**: `MyProjectPackage/Tests/MyProjectFeatureTests/` (Swift Testing framework)
-- **UI Tests**: `MyProjectUITests/` (XCUITest framework)
-- **Test Plan**: `MyProject.xctestplan` coordinates all tests
+## Customization
 
-## Configuration
+When using this template, the following placeholders will be replaced:
 
-### XCConfig Build Settings
-Build settings are managed through **XCConfig files** in `Config/`:
-- `Config/Shared.xcconfig` - Common settings (bundle ID, versions, deployment target)
-- `Config/Debug.xcconfig` - Debug-specific settings  
-- `Config/Release.xcconfig` - Release-specific settings
-- `Config/Tests.xcconfig` - Test-specific settings
+- `MyProject` → Your project name
+- `com.example.MyProject` → Your bundle identifier
+- `MyProjectFeature` → Your feature module name
+- Build settings can be customized in the `Config/` XCConfig files
 
-### Asset Management
-- **App-Level Assets**: `MyProject/Assets.xcassets/` (app icon, accent color)
-- **Feature Assets**: Add `Resources/` folder to SPM package if needed
+## Requirements
 
-### SPM Package Resources
-To include assets in your feature package:
-```swift
-.target(
-    name: "MyProjectFeature",
-    dependencies: [],
-    resources: [.process("Resources")]
-)
-```
+- Xcode 16.0 or later
+- iOS 18.0+ deployment target (configurable)
+- Swift 6.0
 
-## Notes
+## Contributing
 
-### Generated with XcodeBuildMCP
-This project was scaffolded using [XcodeBuildMCP](https://github.com/cameroncooke/XcodeBuildMCP), which provides tools for AI-assisted iOS development workflows.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This template is available under the MIT license. See the LICENSE file for more info.
+
+## Related Projects
+
+- [XcodeBuildMCP](https://github.com/cameroncooke/XcodeBuildMCP) - AI-powered Xcode build and development tools
+- [XcodeBuildMCP macOS Template](https://github.com/cameroncooke/XcodeBuildMCP-macOS-Template) - macOS app template
+
+---
+
+Generated with ❤️ for the Swift community

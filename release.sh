@@ -9,8 +9,8 @@ set -e
 VERSION_TYPE=${1:-patch}
 
 # Check if we're in the right directory
-if [[ ! -f "MyProject.xcworkspace/contents.xcworkspacedata" ]]; then
-  echo "Error: Must be run from the iOS template root directory"
+if [[ ! -d "template" ]]; then
+  echo "Error: Must be run from the iOS template repository root directory"
   exit 1
 fi
 
@@ -90,13 +90,14 @@ echo "Creating GitHub release..."
 TEMP_DIR=$(mktemp -d)
 RELEASE_NAME="XcodeBuildMCP-iOS-Template-$NEW_VERSION"
 
-# Copy all template files to temp directory
-cp -r . "$TEMP_DIR/$RELEASE_NAME"
+# Create the release directory
+mkdir -p "$TEMP_DIR/$RELEASE_NAME"
 
-# Remove git directory and release script from the template
-rm -rf "$TEMP_DIR/$RELEASE_NAME/.git"
-rm -f "$TEMP_DIR/$RELEASE_NAME/release.sh"
-rm -f "$TEMP_DIR/$RELEASE_NAME/$RELEASE_NOTES"
+# Copy only the template directory contents
+cp -r template/* "$TEMP_DIR/$RELEASE_NAME/"
+
+# Remove any git files that might be in the template
+find "$TEMP_DIR/$RELEASE_NAME" -name ".git*" -exec rm -rf {} + 2>/dev/null || true
 
 # Create zip file
 cd "$TEMP_DIR"
