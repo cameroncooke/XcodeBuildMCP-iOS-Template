@@ -1,0 +1,190 @@
+---
+description: "Comprehensive guide for using XcodeBuildMCP tools for building, testing, deploying, and automating iOS applications. Includes simulator management, device deployment, UI automation, and debugging workflows. Apply when building apps, running tests, automating workflows, or using development tools."
+globs: 
+alwaysApply: false
+---
+# XcodeBuildMCP Tool Usage
+
+To work with this project, build, test, and development commands should use XcodeBuildMCP tools instead of raw command-line calls.
+
+## Project Discovery & Setup
+
+```javascript
+// Discover Xcode projects in the workspace
+discover_projs({
+    workspaceRoot: "/path/to/YourApp"
+})
+
+// List available schemes
+list_schems_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace"
+})
+```
+
+## Building for Simulator
+
+```javascript
+// Build for iPhone simulator by name
+build_sim_name_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp",
+    simulatorName: "iPhone 16",
+    configuration: "Debug"
+})
+
+// Build and run in one step
+build_run_sim_name_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp", 
+    simulatorName: "iPhone 16"
+})
+```
+
+## Building for Device
+
+```javascript
+// List connected devices first
+list_devices()
+
+// Build for physical device
+build_dev_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp",
+    configuration: "Debug"
+})
+```
+
+## Testing
+
+```javascript
+// Run tests on simulator
+test_sim_name_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp",
+    simulatorName: "iPhone 16"
+})
+
+// Run tests on device
+test_device_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp",
+    deviceId: "DEVICE_UUID_HERE"
+})
+
+// Test Swift Package
+swift_package_test({
+    packagePath: "/path/to/YourAppPackage"
+})
+```
+
+## Simulator Management
+
+```javascript
+// List available simulators
+list_sims({
+    enabled: true
+})
+
+// Boot simulator
+boot_sim({
+    simulatorUuid: "SIMULATOR_UUID"
+})
+
+// Install app
+install_app_sim({
+    simulatorUuid: "SIMULATOR_UUID",
+    appPath: "/path/to/YourApp.app"
+})
+
+// Launch app
+launch_app_sim({
+    simulatorUuid: "SIMULATOR_UUID",
+    bundleId: "com.example.YourApp"
+})
+```
+
+## Device Management
+
+```javascript
+// Install on device
+install_app_device({
+    deviceId: "DEVICE_UUID",
+    appPath: "/path/to/YourApp.app"
+})
+
+// Launch on device
+launch_app_device({
+    deviceId: "DEVICE_UUID",
+    bundleId: "com.example.YourApp"
+})
+```
+
+## UI Automation
+
+```javascript
+// Get UI hierarchy
+describe_ui({
+    simulatorUuid: "SIMULATOR_UUID"
+})
+
+// Tap element
+tap({
+    simulatorUuid: "SIMULATOR_UUID",
+    x: 100,
+    y: 200
+})
+
+// Type text
+type_text({
+    simulatorUuid: "SIMULATOR_UUID",
+    text: "Hello World"
+})
+
+// Take screenshot
+screenshot({
+    simulatorUuid: "SIMULATOR_UUID"
+})
+```
+
+## Log Capture
+
+```javascript
+// Start capturing simulator logs
+start_sim_log_cap({
+    simulatorUuid: "SIMULATOR_UUID",
+    bundleId: "com.example.YourApp"
+})
+
+// Stop and retrieve logs
+stop_sim_log_cap({
+    logSessionId: "SESSION_ID"
+})
+
+// Device logs
+start_device_log_cap({
+    deviceId: "DEVICE_UUID",
+    bundleId: "com.example.YourApp"
+})
+```
+
+## Utility Functions
+
+```javascript
+// Get bundle ID from app
+get_app_bundle_id({
+    appPath: "/path/to/YourApp.app"
+})
+
+// Clean build artifacts
+clean_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace"
+})
+
+// Get app path for simulator
+get_sim_app_path_name_ws({
+    workspacePath: "/path/to/YourApp.xcworkspace",
+    scheme: "YourApp",
+    platform: "iOS Simulator",
+    simulatorName: "iPhone 16"
+})
+```

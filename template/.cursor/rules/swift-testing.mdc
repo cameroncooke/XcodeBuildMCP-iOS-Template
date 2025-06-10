@@ -1,0 +1,232 @@
+---
+description: "Modern Swift Testing patterns with @Test macros, #expect/#require assertions, async testing, parameterized tests, and test organization. Apply when writing or modifying tests, setting up test suites, or working with test files."
+globs: 
+alwaysApply: false
+---
+name: "Swift Testing Framework Guidelines"
+description: "Modern Swift Testing patterns with @Test macros, #expect/#require assertions, async testing, parameterized tests, and test organization. Apply when writing or modifying tests, setting up test suites, or working with test files."
+agent_requested: true
+applies_to: ["**/Tests/**/*.swift", "**/*Tests.swift", "**/*Test.swift"]
+---
+
+# Swift Testing Framework Guidelines
+
+## Modern Testing with @Test Macros
+
+Use the **Swift Testing** framework (not XCTest) for all tests. Tests should be placed in [MyProjectPackage/Tests](mdc:MyProjectPackage/Tests).
+
+### Basic Test Structure
+
+```swift
+import Testing
+
+@Test("User can successfully log in with valid credentials")
+func userLogin() async throws {
+    let authService = AuthService()
+    let result = try await authService.login(
+        username: "testuser",
+        password: "validpassword"
+    )
+    
+    #expect(result.isSuccess)
+    #expect(result.user.name == "Test User")
+}
+
+@Test("Login fails with invalid credentials")
+func invalidLogin() async throws {
+    let authService = AuthService()
+    
+    await #expect(throws: AuthError.invalidCredentials) {
+        try await authService.login(username: "", password: "")
+    }
+}
+```
+
+## Required Patterns
+
+1. **Use @Test macro** instead of XCTest's test prefix
+2. **Use #expect and #require** for assertions, not XCTAssert
+3. **Include descriptive test names** as string parameters
+4. **Test async code** with proper async/await patterns
+5. **Use #require** when test should stop on failure
+
+### Key Swift Testing Features
+
+- **@Test:** Marks a test function (replaces XCTest's test prefix)
+- **@Suite:** Groups related tests together
+- **#expect:** Validates conditions (replaces XCTAssert)
+- **#require:** Like #expect but stops test execution on failure
+- **Parameterized Tests:** Use @Test with arguments for data-driven tests
+- **async/await:** Full support for testing async code
+- **Traits:** Add metadata like `.bug()`, `.feature()`, or custom tags
+
+## Test Organization
+
+### Test Suites
+```swift
+@Suite("Authentication Tests")
+struct AuthenticationTests {
+    
+    @Test("Valid login scenarios")
+    @Tag(.authentication)
+    func validLogin() async throws {
+        // Test implementation
+    }
+    
+    @Test("Invalid login scenarios", arguments: [
+        ("", "password"),
+        ("username", ""),
+        ("invalid", "invalid")
+    ])
+    func invalidLogin(username: String, password: String) async throws {
+        let authService = AuthService()
+        await #expect(throws: AuthError.self) {
+            try await authService.login(username: username, password: password)
+        }
+    }
+}
+```
+
+### Parameterized Tests
+```swift
+@Test("Email validation", arguments: [
+    ("valid@example.com", true),
+    ("invalid-email", false),
+    ("", false),
+    ("test@", false)
+])
+func emailValidation(email: String, expectedValid: Bool) {
+    let validator = EmailValidator()
+    let isValid = validator.isValid(email)
+    #expect(isValid == expectedValid)
+}
+```
+
+## Async Testing Patterns
+
+### Testing Async Operations
+```swift
+@Test("Data loading updates state correctly")
+func dataLoading() async throws {
+    let model = DataModel()
+    
+    // Test initial state
+    #expect(model.isLoading == false)
+    #expect(model.items.isEmpty)
+    
+    // Start async operation
+    let loadTask = Task {
+        try await model.loadData()
+    }
+    
+    // Verify loading state changed
+    try await Task.sleep(for: .milliseconds(10))
+    #expect(model.isLoading == true)
+    
+    // Wait for completion
+    try await loadTask.value
+    #expect(model.isLoading == false)
+    #expect(!model.items.isEmpty)
+}
+```
+
+### Testing MainActor Code
+```swift
+@Test("UI updates happen on main actor")
+@MainActor
+func uiUpdates() async throws {
+    let viewModel = ViewModel()
+    
+    await viewModel.loadData()
+    
+    // UI properties can be checked directly on main actor
+    #expect(viewModel.isLoaded)
+    #expect(!viewModel.items.isEmpty)
+}
+```
+
+## Best Practices
+
+### Test Organization
+- **One test file per source file** when possible
+- **Test both happy path and edge cases**
+- **Use descriptive test names** that explain what's being verified
+- **Add @Tag for test categorization** (e.g., `.unit`, `.integration`, `.ui`)
+- **Include setup/teardown** in test methods when needed
+
+### Test Quality
+- **Mock external dependencies** for unit tests
+- **Test error conditions** with `#expect(throws:)`
+- **Use #require** for critical preconditions
+- **Keep tests focused** on single behaviors
+- **Add tests for bug fixes** to prevent regression
+
+### Custom Tags
+```swift
+extension Tag {
+    @Tag static var authentication: Self
+    @Tag static var networking: Self
+    @Tag static var ui: Self
+    @Tag static var integration: Self
+}
+```
+
+## Testing SwiftUI Views
+
+### View Testing
+```swift
+@Test("Button shows correct title")
+@MainActor
+func buttonTitle() {
+    let view = ContentView(title: "Test Button")
+    
+    // Test view properties and state
+    #expect(view.title == "Test Button")
+}
+```
+
+### Testing @Observable Models
+```swift
+@Test("Observable model updates correctly")
+@MainActor
+func observableModelUpdates() async throws {
+    let model = ObservableDataModel()
+    
+    #expect(model.items.isEmpty)
+    
+    await model.loadItems()
+    
+    #expect(!model.items.isEmpty)
+    #expect(model.isLoading == false)
+}
+```
+
+## UI Testing Considerations
+
+When writing UI tests in [MyProjectUITests](mdc:MyProjectUITests):
+
+- Use `accessibilityIdentifier` for element selection
+- Test user workflows, not implementation details
+- Keep UI tests focused and fast
+- Use page object pattern for complex flows
+- Test accessibility features
+
+## Running Tests
+
+Tests can be run using XcodeBuildMCP tools:
+
+```javascript
+// Run package tests
+swift_package_test({
+    packagePath: "/path/to/MyProjectPackage"
+})
+
+// Run tests on simulator
+test_sim_name_ws({
+    workspacePath: "/path/to/MyProject.xcworkspace",
+    scheme: "MyProject",
+    simulatorName: "iPhone 16"
+})
+```
+
+All tests should follow these modern Swift Testing patterns and be placed in the appropriate test targets within [MyProjectPackage/Tests](mdc:MyProjectPackage/Tests).

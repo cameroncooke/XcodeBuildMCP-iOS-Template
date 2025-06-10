@@ -2,6 +2,31 @@
 
 A modern iOS application using a **workspace + SPM package** architecture for clean separation between app shell and feature code.
 
+## AI Assistant Rules Files
+
+This template includes **opinionated rules files** for popular AI coding assistants. These files establish coding standards, architectural patterns, and best practices for modern iOS development using the latest APIs and Swift features.
+
+### Included Rules Files
+- **Claude Code**: `CLAUDE.md` - Claude Code rules
+- **Cursor**: `.cursor/*.mdc` - Cursor-specific rules
+- **GitHub Copilot**: `.github/copilot-instructions.md` - GitHub Copilot rules
+
+### Customization Options
+These rules files are **starting points** - feel free to:
+- ✅ **Edit them** to match your team's coding standards
+- ✅ **Delete them** if you prefer different approaches
+- ✅ **Add your own** rules for other AI tools
+- ✅ **Update them** as new iOS APIs become available
+
+### What Makes These Rules Opinionated
+- **No ViewModels**: Embraces pure SwiftUI state management patterns
+- **Swift 6+ Concurrency**: Enforces modern async/await over legacy patterns
+- **Latest APIs**: Recommends iOS 18+ features with optional iOS 26 guidelines
+- **Testing First**: Promotes Swift Testing framework over XCTest
+- **Performance Focus**: Emphasizes @Observable over @Published for better performance
+
+**Note for AI assistants**: You MUST read the relevant rules files before making changes to ensure consistency with project standards.
+
 ## Project Architecture
 
 ```
@@ -89,8 +114,6 @@ To include assets in your feature package:
     resources: [.process("Resources")]
 )
 ```
-
-## Notes
 
 ### Generated with XcodeBuildMCP
 This project was scaffolded using [XcodeBuildMCP](https://github.com/cameroncooke/XcodeBuildMCP), which provides tools for AI-assisted iOS development workflows.

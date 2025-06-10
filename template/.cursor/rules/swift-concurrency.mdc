@@ -1,0 +1,271 @@
+---
+description: "Swift 6 strict concurrency patterns, actor isolation, @MainActor usage, async/await best practices, structured concurrency, and Sendable conformance. Apply when working with async code, actors, concurrent operations, or resolving concurrency warnings/errors."
+globs: 
+alwaysApply: false
+---
+name: "Swift Concurrency Guidelines"
+description: "Swift 6 strict concurrency patterns, actor isolation, @MainActor usage, async/await best practices, structured concurrency, and Sendable conformance. Apply when working with async code, actors, concurrent operations, or resolving concurrency warnings/errors."
+agent_requested: true
+applies_to: ["**/*.swift"]
+---
+
+# Swift Concurrency Guidelines
+
+## Actor Isolation (Swift 6 Strict Mode)
+
+All code must follow Swift 6 strict concurrency rules. The project uses strict concurrency mode as configured in [MyProjectPackage/Package.swift](mdc:MyProjectPackage/Package.swift).
+
+### @MainActor for UI Code
+All UI-related code must be isolated to the main actor:
+
+```swift
+@MainActor
+struct ContentView: View {
+    @State private var model = DataModel()
+    
+    var body: some View {
+        // All UI code runs on main actor
+        List(model.items) { item in
+            Text(item.title)
+        }
+    }
+}
+
+@MainActor
+class UIModel: ObservableObject {
+    @Published var state: ViewState = .idle
+    
+    func updateUI() {
+        // Safe to update UI properties here
+        state = .loaded
+    }
+}
+```
+
+### Actors for Shared Mutable State
+Use actors for managing shared mutable state safely:
+
+```swift
+actor DataStore {
+    private var items: [Item] = []
+    
+    func addItem(_ item: Item) {
+        items.append(item)
+    }
+    
+    func getItems() -> [Item] {
+        return items
+    }
+}
+```
+
+## Async/Await Patterns
+
+### Required: Use .task Modifier in Views
+Always use `.task` for async operations tied to view lifecycle:
+
+```swift
+// ✅ CORRECT: Use .task for view lifecycle
+struct DataView: View {
+    @State private var items: [Item] = []
+    
+    var body: some View {
+        List(items, id: \.id) { item in
+            Text(item.name)
+        }
+        .task {
+            // Automatically cancels when view disappears
+            do {
+                items = try await loadItems()
+            } catch {
+                // Handle error
+            }
+        }
+    }
+}
+```
+
+### Forbidden: Task in onAppear
+Never use `Task {}` inside `onAppear` - it doesn't auto-cancel:
+
+```swift
+// ❌ WRONG: Don't use Task {} in onAppear
+struct BadDataView: View {
+    var body: some View {
+        List(items) { item in
+            Text(item.name)
+        }
+        .onAppear {
+            Task {  // This doesn't auto-cancel!
+                items = try await loadItems()
+            }
+        }
+    }
+}
+```
+
+## Structured Concurrency
+
+### Concurrent Operations with async let
+```swift
+func processMultipleItems() async throws -> [ProcessedItem] {
+    // Use async let for concurrent operations
+    async let result1 = processItem(items[0])
+    async let result2 = processItem(items[1])
+    async let result3 = processItem(items[2])
+    
+    return try await [result1, result2, result3]
+}
+```
+
+### Task Groups for Dynamic Concurrency
+```swift
+func processItemsWithTaskGroup() async throws -> [ProcessedItem] {
+    return try await withThrowingTaskGroup(of: ProcessedItem.self) { group in
+        for item in items {
+            group.addTask {
+                try await processItem(item)
+            }
+        }
+        
+        var results: [ProcessedItem] = []
+        for try await result in group {
+            results.append(result)
+        }
+        return results
+    }
+}
+```
+
+## Sendable Conformance
+
+Swift 6 enforces strict concurrency checking. All types that cross concurrency boundaries must be Sendable:
+
+### Value Types (Automatic)
+Structs with Sendable properties automatically conform:
+
+```swift
+struct User: Sendable {  // Automatic for structs with Sendable properties
+    let id: UUID
+    let name: String
+    let email: String
+}
+```
+
+### Reference Types (Manual)
+Classes need explicit Sendable conformance:
+
+```swift
+final class APIClient: Sendable {
+    private let session: URLSession
+    private let baseURL: URL
+    
+    init(session: URLSession = .shared, baseURL: URL) {
+        self.session = session
+        self.baseURL = baseURL
+    }
+    
+    func fetchData() async throws -> Data {
+        // Safe to call across concurrency domains
+    }
+}
+```
+
+### @Observable with Sendable
+@Observable classes can be Sendable when all properties are Sendable:
+
+```swift
+@Observable
+final class UserModel: Sendable {
+    var name: String = ""
+    var age: Int = 0
+    // Automatically Sendable if all stored properties are Sendable
+}
+```
+
+### @unchecked Sendable for Thread-Safe Types
+Use `@unchecked Sendable` for types that are thread-safe but can't prove it to the compiler:
+
+```swift
+final class Cache: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [String: Any] = [:]
+    
+    func get(_ key: String) -> Any? {
+        lock.withLock { storage[key] }
+    }
+    
+    func set(_ key: String, _ value: Any) {
+        lock.withLock { storage[key] = value }
+    }
+}
+```
+
+### @Sendable Closures
+Mark closures as `@Sendable` when captured by concurrent contexts:
+
+```swift
+func processInBackground(completion: @Sendable @escaping (Result<Data, Error>) -> Void) {
+    Task {
+        do {
+            let data = try await heavyComputation()
+            completion(.success(data))
+        } catch {
+            completion(.failure(error))
+        }
+    }
+}
+```
+
+## Required Patterns
+
+1. **Always use @MainActor** for UI-related code
+2. **Use actors** for shared mutable state
+3. **Prefer async/await** over completion handlers
+4. **Use .task modifier** in SwiftUI views for async operations
+5. **Never use Task {} in onAppear** - it doesn't auto-cancel
+6. **Ensure Sendable conformance** for types crossing concurrency boundaries
+7. **Use structured concurrency** with async let and task groups
+8. **Handle cancellation** properly in long-running operations
+
+## Migration from GCD
+
+Replace GCD patterns with Swift Concurrency:
+
+```swift
+// ❌ OLD: GCD
+DispatchQueue.global(qos: .background).async {
+    let result = heavyComputation()
+    DispatchQueue.main.async {
+        self.updateUI(with: result)
+    }
+}
+
+// ✅ NEW: Swift Concurrency
+Task {
+    let result = await heavyComputation()
+    await MainActor.run {
+        updateUI(with: result)
+    }
+}
+```
+
+## Error Handling with Concurrency
+
+```swift
+func loadUserData() async throws {
+    do {
+        let userData = try await apiClient.fetchUser()
+        await MainActor.run {
+            self.user = userData
+        }
+    } catch {
+        await MainActor.run {
+            self.errorMessage = error.localizedDescription
+        }
+        throw error  // Re-throw if needed
+    }
+}
+```
+
+All concurrent code should be implemented in [MyProjectPackage/Sources](mdc:MyProjectPackage/Sources) following these strict concurrency guidelines.
