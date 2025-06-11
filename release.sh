@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # XcodeBuildMCP iOS Template Release Script
-# Usage: ./release.sh [major|minor|patch]
+# Usage: ./release.sh [major|minor|patch|X.Y.Z]
 
 set -e
 
-# Default to patch version bump
-VERSION_TYPE=${1:-patch}
+# Check if argument is a version number or version type
+ARG=${1:-patch}
 
 # Check if we're in the right directory
 if [[ ! -d "template" ]]; then
@@ -40,22 +40,29 @@ CURRENT_VERSION=${LATEST_TAG#v}
 # Split version into components
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
-# Increment version based on type
-case $VERSION_TYPE in
-  major)
-    NEW_VERSION="$((MAJOR + 1)).0.0"
-    ;;
-  minor)
-    NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
-    ;;
-  patch)
-    NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
-    ;;
-  *)
-    echo "Error: Invalid version type. Use major, minor, or patch"
-    exit 1
-    ;;
-esac
+# Determine if argument is a specific version or version type
+if [[ $ARG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  # Specific version provided
+  NEW_VERSION="$ARG"
+  echo "Using specified version: $NEW_VERSION"
+else
+  # Version type provided, increment accordingly
+  case $ARG in
+    major)
+      NEW_VERSION="$((MAJOR + 1)).0.0"
+      ;;
+    minor)
+      NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+      ;;
+    patch)
+      NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+      ;;
+    *)
+      echo "Error: Invalid argument. Use major, minor, patch, or a specific version (e.g., 1.0.3)"
+      exit 1
+      ;;
+  esac
+fi
 
 NEW_TAG="v$NEW_VERSION"
 echo "New version will be: $NEW_TAG"
