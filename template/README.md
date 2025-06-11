@@ -101,6 +101,12 @@ Build settings are managed through **XCConfig files** in `Config/`:
 - `Config/Release.xcconfig` - Release-specific settings
 - `Config/Tests.xcconfig` - Test-specific settings
 
+### Entitlements Management
+App capabilities are managed through a **declarative entitlements file**:
+- `Config/MyProject.entitlements` - All app entitlements and capabilities
+- AI agents can safely edit this XML file to add HealthKit, CloudKit, Push Notifications, etc.
+- No need to modify complex Xcode project files
+
 ### Asset Management
 - **App-Level Assets**: `MyProject/Assets.xcassets/` (app icon, accent color)
 - **Feature Assets**: Add `Resources/` folder to SPM package if needed

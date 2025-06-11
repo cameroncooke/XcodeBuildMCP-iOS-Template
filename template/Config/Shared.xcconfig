@@ -26,3 +26,9 @@ TARGETED_DEVICE_FAMILY = 1,2
 GENERATE_INFOPLIST_FILE = YES
 INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationLandscapeRight UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationPortrait
 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationLandscapeRight UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
+
+// ==========================================
+// Entitlements
+// ==========================================
+// AI agents can modify Config/MyProject.entitlements to add capabilities
+CODE_SIGN_ENTITLEMENTS = Config/MyProject.entitlements

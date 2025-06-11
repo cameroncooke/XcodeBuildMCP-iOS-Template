@@ -402,6 +402,33 @@ func invalidLogin() async throws {
 - Test both happy paths and edge cases
 - Add tests for bug fixes to prevent regression
 
+# Entitlements Management
+
+This template includes a **declarative entitlements system** that AI agents can safely modify without touching Xcode project files.
+
+## How It Works
+
+- **Entitlements File**: `Config/MyProject.entitlements` contains all app capabilities
+- **XCConfig Integration**: `CODE_SIGN_ENTITLEMENTS` setting in `Config/Shared.xcconfig` points to the entitlements file
+- **AI-Friendly**: Agents can edit the XML file directly to add/remove capabilities
+
+## Adding Entitlements
+
+To add capabilities to your app, edit `Config/MyProject.entitlements`:
+
+## Common Entitlements
+
+| Capability | Entitlement Key | Value |
+|------------|-----------------|-------|
+| HealthKit | `com.apple.developer.healthkit` | `<true/>` |
+| CloudKit | `com.apple.developer.icloud-services` | `<array><string>CloudKit</string></array>` |
+| Push Notifications | `aps-environment` | `development` or `production` |
+| App Groups | `com.apple.security.application-groups` | `<array><string>group.id</string></array>` |
+| Keychain Sharing | `keychain-access-groups` | `<array><string>$(AppIdentifierPrefix)bundle.id</string></array>` |
+| Background Modes | `com.apple.developer.background-modes` | `<array><string>mode-name</string></array>` |
+| Contacts | `com.apple.developer.contacts.notes` | `<true/>` |
+| Camera | `com.apple.developer.avfoundation.audio` | `<true/>` |
+
 # XcodeBuildMCP Tool Usage
 
 To work with this project, build, test, and development commands should use XcodeBuildMCP tools instead of raw command-line calls.
