@@ -103,6 +103,10 @@ mkdir -p "$TEMP_DIR/$RELEASE_NAME"
 # Copy only the template directory contents
 cp -r template/* "$TEMP_DIR/$RELEASE_NAME/"
 
+# Copy hidden directories that aren't captured by the wildcard
+cp -r template/.github "$TEMP_DIR/$RELEASE_NAME/" 2>/dev/null || true
+cp -r template/.cursor "$TEMP_DIR/$RELEASE_NAME/" 2>/dev/null || true
+
 # Remove any git files that might be in the template
 find "$TEMP_DIR/$RELEASE_NAME" -name ".git*" -exec rm -rf {} + 2>/dev/null || true
 
