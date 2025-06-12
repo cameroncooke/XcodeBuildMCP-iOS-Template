@@ -106,9 +106,10 @@ cp -r template/* "$TEMP_DIR/$RELEASE_NAME/"
 # Copy hidden directories that aren't captured by the wildcard
 cp -r template/.github "$TEMP_DIR/$RELEASE_NAME/" 2>/dev/null || true
 cp -r template/.cursor "$TEMP_DIR/$RELEASE_NAME/" 2>/dev/null || true
+cp template/.gitignore "$TEMP_DIR/$RELEASE_NAME/" 2>/dev/null || true
 
-# Remove any git files that might be in the template
-find "$TEMP_DIR/$RELEASE_NAME" -name ".git*" -exec rm -rf {} + 2>/dev/null || true
+# Remove only .git directories (actual git repositories)
+find "$TEMP_DIR/$RELEASE_NAME" -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Create zip file
 cd "$TEMP_DIR"
