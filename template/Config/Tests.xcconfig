@@ -9,3 +9,6 @@
 // ==========================================
 PRODUCT_BUNDLE_IDENTIFIER = $(PRODUCT_BUNDLE_IDENTIFIER)UITests
 TEST_TARGET_NAME = MyProject
+
+// Fix duplicate module name issue
+PRODUCT_MODULE_NAME = $(PRODUCT_NAME)UITests
